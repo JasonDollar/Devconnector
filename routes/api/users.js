@@ -2,9 +2,14 @@ const express = require('express')
 const gravatar = require('gravatar')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const passport = require('passport')
+
+//load input validation
+const validateRegisterInput = require('../../validation/register')
+const validateLoginInput = require('../../validation/login')
 
 const User = require('../../models/User')
-const { jwtKey } = require('../../config/keys')
+const { secretOrKey } = require('../../config/keys')
 
 const router = express.Router()
 
@@ -19,10 +24,16 @@ router.get('/test', (req, res) => {
 //@desc register a user
 //@access public
 router.post('/register', async (req, res) => {
+  const { errors, isValid } = validateRegisterInput(req.body)
+  if (!isValid) {
+    return res.status(400).json(errors)
+  }
+
   const { name, email, password } = req.body
   const user = await User.findOne({ email })
   if (user) {
-    return res.status(404).json({ email: 'Email already exists' })
+    errors.email = 'Email already exists'
+    return res.status(404).json(errors)
   } 
   try {
     const avatar = gravatar.url(email, {
@@ -43,7 +54,8 @@ router.post('/register', async (req, res) => {
     res.json(createdUser)
 
   } catch (e) {
-    res.status(400).send({ error: e.message })
+    errors.serverErr = e.message
+    res.status(500).send(errors)
   }
 })
 
@@ -51,34 +63,50 @@ router.post('/register', async (req, res) => {
 //@desc login user / returning token
 //@access public
 router.post('/login', async (req, res) => {
+  const { errors, isValid } = validateLoginInput(req.body)
+  if (!isValid) {
+    return res.status(400).json(errors)
+  }
+
   const { email, password } = req.body
 
   //find user by email
   try {
     const user = await User.findOne({ email })
     if (!user) {
-      res.status(404).json({ email: 'User not found' })
+      errors.email = 'User not found'
+      res.status(404).json(errors)
     }
     const isMatch = await bcrypt.compare(password, user.password)
     if (isMatch) {
       const payload = {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         avatar: user.avatar,
       }
 
-      const token = jwt.sign(payload, jwtKey, { expiresIn: 3600 })
+      const token = jwt.sign(payload, secretOrKey, { expiresIn: 3600 })
       res.json({
         success: true,
         token: 'Bearer ' + token,
       })
 
     } else {
-      return res.status(400).json({ password: 'Password incorrect' })
+      errors.password = 'Passord incorrect'
+      return res.status(400).json(errors)
     }
   } catch (e) {
-    res.status(400).send()
+    errors.serverErr = e.message
+    res.status(500).send(errors)
   }
+})
+
+//@route GET api/users/current
+//@desc return current user
+//@access private
+router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
+  
+  res.json({ _id: req.user._id })
 })
 
 module.exports = router 
