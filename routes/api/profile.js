@@ -8,7 +8,7 @@ const User = require('../../models/User')
 const validateProfileInput = require('../../validation/profile')
 const validateExperienceInput = require('../../validation/experience')
 const validateEducationInput = require('../../validation/education')
-const isObjectId = require('../../validation/is_ObjectId')
+const isObjectId = require('../../validation/is_ObjectId') 
 
 const router = express.Router()
 
@@ -44,7 +44,7 @@ router.get('/', passport.authenticate('jwt', { session: false }), async (req, re
 router.post('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { errors, isValid } = validateProfileInput(req.body)
   if (!isValid) {
-    return res.json(errors)
+    return res.status(400).json(errors)
   }
 
   const profileFields = {}
@@ -246,7 +246,7 @@ router.delete('/experience/:exp_id', passport.authenticate('jwt', { session: fal
       .map(item => item.id)
       .indexOf(req.params.exp_id)
     if (removeIndex < 0) {
-      errors.noprofile = 'Profile not found'
+      errors.noprofile = 'Given experience not found in database'
       return res.status(404).json(errors)
     }
     profile.experience.splice(removeIndex, 1)
@@ -278,13 +278,10 @@ router.delete('/education/:edu_id', passport.authenticate('jwt', { session: fals
       .map(item => item.id)
       .indexOf(req.params.edu_id)
     if (removeIndex < 0) {
-      errors.noprofile = 'Profile not found'
+      errors.noprofile = 'Given education not found in database'
       return res.status(404).json(errors)
     }
     profile.education.splice(removeIndex, 1)
-    console.log(removeIndex)
-    // const filteredEdu = profile.education.filter(item => item.id !== req.params.edu_id)
-    // profile.education = filteredEdu
 
     const savedProfile = await profile.save()
     res.json(savedProfile)
@@ -294,5 +291,20 @@ router.delete('/education/:edu_id', passport.authenticate('jwt', { session: fals
   }
 })
 
+//@route DELETE api/profile/
+//@desc delete user and profile
+//@access private
+router.delete('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const errors = {}
+  
+  try {
+    await Profile.findOneAndRemove({ user: req.user._id })
+    await User.findOneAndRemove({ _id: req.user._id })
+    res.json({ succes: true })
+  } catch (e) {
+    errors.serverErr = e.message
+    res.status(500).send(errors)
+  }
+})
 
 module.exports = router 
