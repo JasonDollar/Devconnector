@@ -234,11 +234,21 @@ router.post('/education', passport.authenticate('jwt', { session: false }), asyn
 //@access private
 router.delete('/experience/:exp_id', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const errors = {}
+  const isValidObjId = isObjectId(req.params.exp_id)
+  if (!isValidObjId) {
+    errors.noprofile = 'Provide valid ID'
+    return res.status(400).json(errors)
+  }
+
   try {
     const profile = await Profile.findOne({ user: req.user._id }).populate('user', ['name', 'avatar'])
     const removeIndex = profile.experience
       .map(item => item.id)
       .indexOf(req.params.exp_id)
+    if (removeIndex < 0) {
+      errors.noprofile = 'Profile not found'
+      return res.status(404).json(errors)
+    }
     profile.experience.splice(removeIndex, 1)
 
     const savedProfile = await profile.save()
@@ -254,12 +264,27 @@ router.delete('/experience/:exp_id', passport.authenticate('jwt', { session: fal
 //@access private
 router.delete('/education/:edu_id', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const errors = {}
+
+  const isValidObjId = isObjectId(req.params.edu_id)
+  if (!isValidObjId) {
+    errors.noprofile = 'Provide valid ID'
+    return res.status(400).json(errors)
+  }
+
   try {
     const profile = await Profile.findOne({ user: req.user._id }).populate('user', ['name', 'avatar'])
+    
     const removeIndex = profile.education
       .map(item => item.id)
       .indexOf(req.params.edu_id)
+    if (removeIndex < 0) {
+      errors.noprofile = 'Profile not found'
+      return res.status(404).json(errors)
+    }
     profile.education.splice(removeIndex, 1)
+    console.log(removeIndex)
+    // const filteredEdu = profile.education.filter(item => item.id !== req.params.edu_id)
+    // profile.education = filteredEdu
 
     const savedProfile = await profile.save()
     res.json(savedProfile)
