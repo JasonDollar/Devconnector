@@ -75,26 +75,26 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email })
     if (!user) {
       errors.email = 'User not found'
-      res.status(404).json(errors)
+      return res.status(404).json(errors)
     }
     const isMatch = await bcrypt.compare(password, user.password)
-    if (isMatch) {
-      const payload = {
-        _id: user._id,
-        name: user.name,
-        avatar: user.avatar,
-      }
-
-      const token = jwt.sign(payload, secretOrKey, { expiresIn: 3600 })
-      res.json({
-        success: true,
-        token: 'Bearer ' + token,
-      })
-
-    } else {
+    if (!isMatch) {
       errors.password = 'Passord incorrect'
       return res.status(400).json(errors)
     }
+    const payload = {
+      _id: user._id,
+      name: user.name,
+      avatar: user.avatar,
+    }
+
+    const token = jwt.sign(payload, secretOrKey, { expiresIn: 3600 })
+    res.json({
+      success: true,
+      token: 'Bearer ' + token,
+    })
+
+
   } catch (e) {
     errors.serverErr = e.message
     res.status(500).send(errors)
