@@ -1,7 +1,6 @@
 import * as types from '../actions/types'
 
-const initState = {
-}
+const initState = {}
 
 const errorsReducer = (state = initState, action) => {
   switch (action.type) {

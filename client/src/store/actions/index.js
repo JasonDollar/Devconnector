@@ -4,3 +4,8 @@ export {
   setCurrentUser,
   logoutUser,
 } from './authActions'
+
+export {
+  getCurrentProfile,
+  clearProfile
+} from './profileActions'

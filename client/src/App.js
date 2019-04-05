@@ -6,13 +6,14 @@ import jwt_decode from 'jwt-decode'
 import setAuthToken from './utils/setAuthToken'
 import store from './store/store'
 import history from './history'
-import {setCurrentUser, logoutUser} from './store/actions'
+import {setCurrentUser, logoutUser, clearProfile} from './store/actions'
 
 import Navbar from './components/Layout/Navbar'
 import Landing from './components/Layout/Landing'
 import Footer from './components/Layout/Footer'
 import Login from './components/Auth/Login'
 import Register from './components/Auth/Register'
+import Dashboard from './components/Dashboard/Dashboard'
 
 import './App.css';
 
@@ -21,6 +22,7 @@ if (localStorage.jwtToken) {
   if (decoded.exp * 1000 < Date.now()) {
     localStorage.removeItem('jwtToken')
     setAuthToken(false)
+    store.dispatch(clearProfile())
     store.dispatch(logoutUser())
     window.location.href= '/login'
   } else {
@@ -43,6 +45,7 @@ class App extends Component {
             <div className="container">
               <Route exact path="/register" component={Register} />
               <Route exact path="/login" component={Login} />
+              <Route exact path="/dashboard" component={Dashboard} />
             </div>
             <Footer />
           </div>

@@ -3,13 +3,14 @@ import PropTypes from 'prop-types'
 import {Link} from 'react-router-dom'
 import {connect} from 'react-redux'
 
-import {logoutUser} from '../../store/actions'
+import {logoutUser, clearProfile} from '../../store/actions'
 
-const Navbar = ({logoutUser, auth}) => {
+const Navbar = ({logoutUser, auth, clearProfile}) => {
   const {isAuthenticated, user} = auth
 
   const onLogoutClick = (e) => {
     e.preventDefault();
+    clearProfile()
     logoutUser()
   }
 
@@ -68,4 +69,4 @@ const mapStateToProps = state => ({
   auth: state.auth
 })
 
-export default connect(mapStateToProps, {logoutUser})(Navbar)
+export default connect(mapStateToProps, {logoutUser, clearProfile})(Navbar)

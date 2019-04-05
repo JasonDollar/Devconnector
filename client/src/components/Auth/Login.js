@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react'
 import {Redirect} from 'react-router-dom'
 import PropTypes from 'prop-types'
-import classNames from 'classnames'
 import {connect} from 'react-redux'
 
 import {loginUser} from '../../store/actions'
+import TextFieldGroup from '../common/TextFieldGroup'
 
 const Login = ({loginUser, auth, errors}) => {
   const [email, setEmail] = useState('')
@@ -34,33 +34,23 @@ const Login = ({loginUser, auth, errors}) => {
           <p className="lead text-center">Sign in to your DevConnector account</p>
           <form action="dashboard.html" onSubmit={handleFormSubmit}>
 
-            <div className="form-group">
-              <input 
-                type="email" 
-                className={classNames('form-control form-control-lg',{
-                  'is-invalid': errors.email
-                })} 
-                placeholder="Email Address" 
-                name="email" 
-                value={email} 
-                onChange={e => setEmail(e.target.value)} 
-              />
-              {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-            </div>
+            <TextFieldGroup 
+              placeholder="Email address"
+              type="email" 
+              name="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)} 
+              error={errors.email}
+            />
 
-            <div className="form-group">
-              <input 
-                type="password" 
-                className={classNames('form-control form-control-lg',{
-                  'is-invalid': errors.password
-                })} 
-                placeholder="Password" 
-                name="password" 
-                value={password} 
-                onChange={e => setPassword(e.target.value)} 
-              />
-              {errors.password && <div className="invalid-feedback">{errors.password}</div>}
-            </div>
+            <TextFieldGroup 
+              placeholder="Password"
+              type="password" 
+              name="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)} 
+              error={errors.password}
+            />
 
             <input type="submit" className="btn btn-info btn-block mt-4" />
           </form>
