@@ -7,5 +7,8 @@ export {
 
 export {
   getCurrentProfile,
-  clearProfile
+  clearProfile,
+  setProfileLoading,
+  createProfile,
+  deleteAccount
 } from './profileActions'
