@@ -43,7 +43,7 @@ class EditProfile extends Component {
   }
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.profileDetails !== this.props.profileDetails) {
-      if (!this.props.profileDetails) return
+      if (Object.getOwnPropertyNames(this.props.profileDetails).length === 0) return
       const profile = this.props.profileDetails
       let social
       if (this.props.profileDetails.social) {

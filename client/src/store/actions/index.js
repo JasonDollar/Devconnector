@@ -10,5 +10,9 @@ export {
   clearProfile,
   setProfileLoading,
   createProfile,
-  deleteAccount
+  deleteAccount,
+  addExperience,
+  addEducation,
+  deleteExperience,
+  deleteEducation
 } from './profileActions'

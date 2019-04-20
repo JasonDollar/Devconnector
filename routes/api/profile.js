@@ -163,7 +163,7 @@ router.get('/all', async (req, res) => {
 router.post('/experience', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { errors, isValid } = validateExperienceInput(req.body)
   if (!isValid) {
-    return res.json(errors)
+    return res.status(400).json(errors)
   }
   
   try {
@@ -178,7 +178,7 @@ router.post('/experience', passport.authenticate('jwt', { session: false }), asy
       location: req.body.location,
       from: req.body.from,
       to: req.body.to,
-      current: req.body.to ? false : req.body.current,
+      current: req.body.to == false ? false : req.body.current,
       description: req.body.description,
     }
 
@@ -199,7 +199,7 @@ router.post('/experience', passport.authenticate('jwt', { session: false }), asy
 router.post('/education', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { errors, isValid } = validateEducationInput(req.body)
   if (!isValid) {
-    return res.json(errors)
+    return res.status(400).json(errors)
   }
   
   try {
